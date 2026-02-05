@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    // PRODUCTOS: Público lectura (Auth), Solo Admin escritura
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // INGREDIENTES: Solo Admin puede ver y editar inventario base
+    match /ingredients/{ingredientId} {
+      allow read: if isAuthenticated(); // Staff needs to read for sales logic
+      allow write: if isAdmin();
+    }
+
+    // VENTAS: Creación permitida para staff, NO edición, NO borrado (Inmutabilidad)
+    match /sales/{saleId} {
+      // Solo permitir crear si el usuario está autenticado
+      allow create: if isAuthenticated() 
+                      // Opcional: Validar que el user_id del doc coincida con el auth.uid
+                      && request.resource.data.userId == request.auth.uid;
+      
+      // Lectura permitida para el dueño o admin
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Permitir actualizar SOLO el estado (ej. de pending a completed)
+      allow update: if isAuthenticated() 
+                      && (resource.data.userId == request.auth.uid || isAdmin())
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+                      
+      // Borrado prohibido para todos (excepto Admin si es necesario limpieza)
+      allow delete: if isAdmin();
+    }
+
+    // CAJA (Cierres): 
+    match /cash_shifts/{shiftId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+    
+    // USERS / CUSTOMERS
+    match /customers/{customerId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
