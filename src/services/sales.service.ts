@@ -3,8 +3,7 @@ import {
     doc,
     runTransaction,
     serverTimestamp,
-    DocumentReference,
-    DocumentSnapshot
+    DocumentReference
 } from "firebase/firestore";
 import { db } from "./firebase.config";
 import { SaleSchema, type Sale } from "../schemas/sale.schema";
@@ -21,7 +20,8 @@ export const SalesService = {
         const validation = SaleSchema.safeParse(saleData);
         if (!validation.success) {
             console.error("Error de Validación Zod:", validation.error);
-            const errorMsg = validation.error.errors.map(e => e.message).join(", ");
+            // Use .issues instead of .errors for Zod 3 compatibility (or just to be safe)
+            const errorMsg = validation.error.issues.map(e => e.message).join(", ");
             throw new Error(`Datos inválidos: ${errorMsg}`);
         }
 
