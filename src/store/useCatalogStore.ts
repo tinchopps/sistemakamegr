@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { db } from '../services/firebase.config';
-import { collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import { Product, ProductSchema } from '../schemas/product.schema';
-import { Ingredient, IngredientSchema } from '../schemas/ingredient.schema';
+import { collection, onSnapshot, addDoc, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { ProductSchema, type Product } from '../schemas/product.schema';
+import { IngredientSchema, type Ingredient } from '../schemas/ingredient.schema';
 
 interface CatalogState {
     products: Product[];
@@ -20,7 +20,7 @@ interface CatalogState {
     deleteIngredient: (id: string) => Promise<void>;
 }
 
-export const useCatalogStore = create<CatalogState>((set, get) => ({
+export const useCatalogStore = create<CatalogState>((set) => ({
     products: [],
     ingredients: [],
     isLoading: true,
@@ -47,10 +47,10 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         const unsubIng = onSnapshot(qIng,
             (snapshot) => {
                 const ingData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ingredient));
-                set(state => ({
+                set({
                     ingredients: ingData,
                     isLoading: false // Done when both load (simplification: technically race here but good enough for MVP)
-                }));
+                });
             },
             (error) => {
                 console.error("Error fetching ingredients:", error);

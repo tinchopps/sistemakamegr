@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Product } from '../schemas/product.schema';
-import { SaleItem } from '../schemas/sale.schema';
+import type { Product } from '../schemas/product.schema';
+import type { SaleItem } from '../schemas/sale.schema';
 
 interface CartState {
     items: SaleItem[];

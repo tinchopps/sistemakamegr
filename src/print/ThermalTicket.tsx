@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
-import { Sale } from '../schemas/sale.schema';
+import type { Sale } from '../schemas/sale.schema';
 
 interface ThermalTicketProps {
-    sale: Sale | null;
+    sale: (Sale & { id?: string }) | null;
 }
 
 export const ThermalTicket = forwardRef<HTMLDivElement, ThermalTicketProps>(({ sale }, ref) => {

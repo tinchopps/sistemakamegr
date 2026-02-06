@@ -8,10 +8,10 @@ export default {
         extend: {
             colors: {
                 kame: {
-                    orange: '#E67E22', // Primary
-                    dark: '#000000',   // Background
-                    surface: '#121212', // Card/Surface
-                    gray: '#1E1E1E',    // Secondary Surface
+                    orange: '#E67E22', // Primary (Nuclear: #E67E22)
+                    dark: '#121212',   // Background (Nuclear: #121212)
+                    card: '#1E1E1E',   // Cards (Nuclear: #1E1E1E)
+                    surface: '#1E1E1E', // Alias for surface
                 }
             },
             fontFamily: {

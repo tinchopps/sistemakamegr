@@ -7,9 +7,9 @@ import {
     DocumentSnapshot
 } from "firebase/firestore";
 import { db } from "./firebase.config";
-import { SaleSchema, Sale } from "../schemas/sale.schema";
-import { Product } from "../schemas/product.schema";
-import { Ingredient } from "../schemas/ingredient.schema";
+import { SaleSchema, type Sale } from "../schemas/sale.schema";
+import type { Product } from "../schemas/product.schema";
+import type { Ingredient } from "../schemas/ingredient.schema";
 
 export const SalesService = {
     /**

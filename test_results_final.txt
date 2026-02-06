@@ -1,0 +1,68 @@
+
+Running 6 tests using 4 workers
+
+  ✓  3 [chromium] › tests\regression.spec.ts:89:5 › Sistema Kame Regression & UI Tests › Responsiveness Check: 70/30 Split (3.5s)
+  ✓  2 [chromium] › tests\regression.spec.ts:33:5 › Sistema Kame Regression & UI Tests › Layout Check: Split Panel & Horizontal Alignment (3.8s)
+  ✓  5 [chromium] › tests\regression.spec.ts:107:5 › Sistema Kame Regression & UI Tests › Functional Check: Add Item & Price Formatting (661ms)
+  ✓  1 [chromium] › tests\regression.spec.ts:5:5 › Sistema Kame Regression & UI Tests › Visual Check: Dark Mode & Tailwind (4.6s)
+  ✘  4 [chromium] › tests\regression.spec.ts:63:5 › Sistema Kame Regression & UI Tests › Visual Check: Dark Mode & Premium Styles (9.0s)
+  ✘  6 [chromium] › tests\regression.spec.ts:127:5 › Sistema Kame Regression & UI Tests › Admin Check: Inventory Table & Alerts (28.3s)
+
+
+  1) [chromium] › tests\regression.spec.ts:63:5 › Sistema Kame Regression & UI Tests › Visual Check: Dark Mode & Premium Styles 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCSS[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('aside').last().locator('> div')
+    Expected pattern: [32m/monospace/[39m
+    Received string:  [31m"Inter, sans-serif"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCSS" with timeout 5000ms[22m
+    [2m  - waiting for locator('aside').last().locator('> div')[22m
+    [2m    9 × locator resolved to <div class="flex flex-col h-full bg-[#F9FAFB] text-black shadow-2xl relative font-mono z-30 border-l border-gray-200">…</div>[22m
+    [2m      - unexpected value "Inter, sans-serif"[22m
+
+
+      84 |         const sidebarContainer = page.locator('aside').last().locator('> div');
+      85 |         await expect(sidebarContainer).toHaveCSS('background-color', 'rgb(249, 250, 251)');
+    > 86 |         await expect(sidebarContainer).toHaveCSS('font-family', /monospace/); // Font-mono check
+         |                                        ^
+      87 |     });
+      88 |
+      89 |     test('Responsiveness Check: 70/30 Split', async ({ page }) => {
+        at C:\Users\marti\sistemakameantigravity\tests\regression.spec.ts:86:40
+
+    Error Context: test-results\regression-Sistema-Kame-Re-5af6f-ck-Dark-Mode-Premium-Styles-chromium\error-context.md
+
+  2) [chromium] › tests\regression.spec.ts:127:5 › Sistema Kame Regression & UI Tests › Admin Check: Inventory Table & Alerts 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Stock Actual')
+    Expected: visible
+    Error: strict mode violation: getByText('Stock Actual') resolved to 2 elements:
+        1) <label class="block text-xs text-gray-400 mb-1">Stock Actual</label> aka locator('form').getByText('Stock Actual')
+        2) <th class="p-4">Stock Actual</th> aka getByRole('columnheader', { name: 'Stock Actual' })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Stock Actual')[22m
+
+
+      134 |         const table = page.locator('table');
+      135 |         await expect(table).toBeVisible();
+    > 136 |         await expect(page.getByText('Stock Actual')).toBeVisible();
+          |                                                      ^
+      137 |         await expect(page.getByText('Estado')).toBeVisible();
+      138 |
+      139 |         // Check for Low Stock / Critical Logic (Visual)
+        at C:\Users\marti\sistemakameantigravity\tests\regression.spec.ts:136:54
+
+    Error Context: test-results\regression-Sistema-Kame-Re-59305-heck-Inventory-Table-Alerts-chromium\error-context.md
+
+  2 failed
+    [chromium] › tests\regression.spec.ts:63:5 › Sistema Kame Regression & UI Tests › Visual Check: Dark Mode & Premium Styles 
+    [chromium] › tests\regression.spec.ts:127:5 › Sistema Kame Regression & UI Tests › Admin Check: Inventory Table & Alerts 
+  4 passed (35.2s)

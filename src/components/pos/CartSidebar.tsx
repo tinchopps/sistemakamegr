@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 import { SalesService } from '../../services/sales.service';
-import { Trash2, Minus, Plus, ShoppingCart, Loader2 } from 'lucide-react';
+import { Trash2, Minus, Plus, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast, Toaster } from 'sonner';
 import { cn } from '../ui/Card';
@@ -57,26 +57,31 @@ export default function CartSidebar() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-kame-surface text-white shadow-2xl relative">
+        <div className="flex flex-col h-full bg-[#F9FAFB] text-black shadow-2xl relative font-mono z-30 border-l border-gray-200">
+            {/* Shadow overlay to separate from dark content */}
+            <div className="absolute inset-y-0 -left-4 w-4 bg-gradient-to-r from-transparent to-black/20 pointer-events-none" />
+
             <Toaster />
 
-            {/* Header */}
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                    <ShoppingCart className="w-5 h-5 text-kame-orange" />
-                    Comanda Actual
+            {/* Header Ticket Style - Thermal */}
+            <div className="p-6 border-b-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-center bg-[#F9FAFB]">
+                <h2 className="text-3xl font-black uppercase tracking-widest text-[#121212]">
+                    KAME POS
                 </h2>
-                <span className="text-sm text-gray-400 font-medium bg-white/5 px-2 py-1 rounded-md">
-                    #{items.length} ítems
-                </span>
+                <div className="text-xs font-bold text-gray-500 mt-2 font-mono">
+                    TICKET #{Math.floor(Math.random() * 10000).toString().padStart(4, '0')}
+                </div>
+                <div className="text-xs text-gray-400 mt-1 font-mono">
+                    {new Date().toLocaleDateString()} - {new Date().toLocaleTimeString()}
+                </div>
             </div>
 
-            {/* Items List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Items List - Thermal */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-[#F9FAFB]">
                 {items.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500 opacity-50">
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 opacity-40 font-sans">
                         <ShoppingBagIcon className="w-16 h-16 mb-4 stroke-1" />
-                        <p>El carrito está vacío</p>
+                        <p className="font-medium text-sm uppercase tracking-wide">Ticket Vacío</p>
                     </div>
                 ) : (
                     <AnimatePresence initial={false}>
@@ -85,65 +90,67 @@ export default function CartSidebar() {
                                 key={item.productId}
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
+                                exit={{ opacity: 0, height: 0 }}
                                 layout
-                                className="bg-kame-gray p-3 rounded-xl border border-white/5 flex gap-3 group"
+                                className="flex justify-between items-start text-sm border-b border-gray-200 pb-3 pt-1 group"
                             >
-                                {/* Quantity Controls */}
-                                <div className="flex flex-col items-center justify-between bg-black/20 rounded-lg p-1 w-8 shrink-0">
-                                    <button
-                                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                                        className="hover:text-kame-orange transition-colors p-1"
-                                    >
-                                        <Plus className="w-3 h-3" />
-                                    </button>
-                                    <span className="text-sm font-bold">{item.quantity}</span>
-                                    <button
-                                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                                        className="hover:text-red-400 transition-colors p-1"
-                                    >
-                                        <Minus className="w-3 h-3" />
-                                    </button>
-                                </div>
-
-                                {/* Info */}
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-semibold text-sm truncate">{item.productName}</h4>
-                                    <div className="flex items-center justify-between mt-1">
-                                        <span className="text-xs text-gray-400">
-                                            {formatPrice(item.unitPrice)} x {item.quantity}
-                                        </span>
-                                        <span className="text-sm font-bold text-kame-orange">
-                                            {formatPrice(item.subtotal)}
+                                {/* Quantity & Name */}
+                                <div className="flex gap-3 items-start">
+                                    <div className="flex flex-col items-center gap-1 bg-gray-100 rounded-md p-1 border border-gray-200 shadow-sm">
+                                        <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="text-gray-500 hover:text-kame-orange transition-colors"><Plus size={12} /></button>
+                                        <span className="font-bold w-5 text-center text-black font-mono text-base">{item.quantity}</span>
+                                        <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="text-gray-500 hover:text-red-500 transition-colors"><Minus size={12} /></button>
+                                    </div>
+                                    <div className="flex flex-col pt-1">
+                                        <span className="font-bold uppercase text-black leading-tight text-sm">{item.productName}</span>
+                                        <span className="text-xs text-gray-500 font-mono mt-0.5">
+                                            {formatPrice(item.unitPrice)}
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* Actions */}
-                                <button
-                                    onClick={() => removeItem(item.productId)}
-                                    className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-red-400 transition-all self-center"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
+                                {/* Price & Remove */}
+                                <div className="flex items-center gap-3 pt-1">
+                                    <span className="font-bold font-mono text-base text-black tracking-tight">
+                                        {formatPrice(item.subtotal)}
+                                    </span>
+                                    <button
+                                        onClick={() => removeItem(item.productId)}
+                                        className="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 )}
             </div>
 
-            {/* Footer / Totals */}
-            <div className="mt-auto bg-black p-6 border-t border-white/10">
-                <div className="space-y-2 mb-6 text-sm">
-                    <div className="flex justify-between text-gray-400">
-                        <span>Subtotal</span>
-                        <span>{formatPrice(subtotal)}</span>
-                    </div>
-                    {/* Placeholder for discounts if implemented in Phase C+ */}
-                    {discountAmount > 0 && <div className="flex justify-between text-green-400"><span>Descuento</span><span>-{formatPrice(discountAmount)}</span></div>}
+            {/* Footer / Totals - Thermal */}
+            <div className="mt-auto bg-[#F9FAFB] p-6 border-t-2 border-dashed border-gray-300 relative z-20 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+                {/* Sawtooth / Ripped paper decorative top border could go here */}
 
-                    <div className="flex justify-between text-xl font-bold text-white pt-4 border-t border-white/10 mt-2">
-                        <span>Total</span>
+                <div className="space-y-2 mb-6 text-sm font-mono text-gray-600">
+                    <div className="flex justify-between">
+                        <span>SUBTOTAL</span>
+                        <span className="font-bold">{formatPrice(subtotal)}</span>
+                    </div>
+                    {deliveryFee > 0 && (
+                        <div className="flex justify-between">
+                            <span>ENVÍO</span>
+                            <span className="font-bold">{formatPrice(deliveryFee)}</span>
+                        </div>
+                    )}
+                    {discountAmount > 0 && (
+                        <div className="flex justify-between text-green-600">
+                            <span>DESCUENTO</span>
+                            <span className="font-bold">-{formatPrice(discountAmount)}</span>
+                        </div>
+                    )}
+
+                    <div className="flex justify-between text-4xl font-black text-black pt-4 border-t-2 border-black mt-4 items-end">
+                        <span className="text-base font-bold mb-1">TOTAL</span>
                         <span>{formatPrice(total)}</span>
                     </div>
                 </div>
@@ -152,12 +159,12 @@ export default function CartSidebar() {
                     onClick={handleCheckout}
                     disabled={items.length === 0 || isProcessing}
                     className={cn(
-                        "w-full h-14 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed",
-                        "bg-kame-orange text-black hover:bg-orange-400 hover:shadow-lg hover:shadow-orange-500/20"
+                        "w-full h-16 rounded-xl font-black text-xl tracking-widest flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-orange-500/20",
+                        "bg-[#E67E22] text-white hover:bg-orange-600 border border-orange-600"
                     )}
                 >
                     {isProcessing ? (
-                        <><Loader2 className="w-5 h-5 animate-spin" /> Procesando...</>
+                        <><Loader2 className="w-6 h-6 animate-spin" /> PROCESANDO</>
                     ) : (
                         "COBRAR (F1)"
                     )}
@@ -187,3 +194,5 @@ function ShoppingBagIcon(props: any) {
         </svg>
     )
 }
+
+

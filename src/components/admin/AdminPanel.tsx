@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useCatalogStore } from '../../store/useCatalogStore';
 import { Card } from '../ui/Card';
-import { ProductSchema } from '../../schemas/product.schema';
-import { IngredientSchema } from '../../schemas/ingredient.schema';
 import { toast } from 'sonner';
-import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { Trash2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function AdminPanel() {
@@ -47,7 +45,7 @@ export default function AdminPanel() {
                 </header>
 
                 {activeTab === 'products' ? (
-                    <ProductsManager products={products} ingredients={ingredients} onCreate={createProduct} onDelete={deleteProduct} />
+                    <ProductsManager products={products} onCreate={createProduct} onDelete={deleteProduct} />
                 ) : (
                     <IngredientsManager ingredients={ingredients} onCreate={createIngredient} onDelete={deleteIngredient} />
                 )}
@@ -58,7 +56,7 @@ export default function AdminPanel() {
 
 // --- SUB COMPONENTS ---
 
-function ProductsManager({ products, ingredients, onCreate, onDelete }: any) {
+function ProductsManager({ products, onCreate, onDelete }: any) {
     const [formData, setFormData] = useState({
         name: '', price: 0, category: 'Pizzas', stockType: 'direct', stock: 0, recipe: [] as any[]
     });
@@ -170,16 +168,17 @@ function IngredientsManager({ ingredients, onCreate, onDelete }: any) {
     const [name, setName] = useState('');
     const [stock, setStock] = useState(0);
     const [unit, setUnit] = useState('g');
+    const [minStock, setMinStock] = useState(100);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             await onCreate({
                 name,
-                currentStock: Number(stock), // Integer
-                minStock: 100, // Default MVP
+                currentStock: Number(stock),
+                minStock: Number(minStock),
                 unit,
-                costPerUnit: 1 // Default MVP
+                costPerUnit: 1
             });
             toast.success("Ingrediente creado");
             setName(''); setStock(0);
@@ -197,14 +196,25 @@ function IngredientsManager({ ingredients, onCreate, onDelete }: any) {
                         value={name} onChange={e => setName(e.target.value)} />
 
                     <div className="grid grid-cols-2 gap-2">
-                        <input required type="number" placeholder="Stock" className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm"
-                            value={stock} onChange={e => setStock(Number(e.target.value))} />
-                        <select className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm"
-                            value={unit} onChange={e => setUnit(e.target.value)}>
-                            <option value="g">Gramos (g)</option>
-                            <option value="ml">Mililitros (ml)</option>
-                            <option value="u">Unidades (u)</option>
-                        </select>
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">Stock Actual</label>
+                            <input required type="number" className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm"
+                                value={stock} onChange={e => setStock(Number(e.target.value))} />
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">Unidad</label>
+                            <select className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm"
+                                value={unit} onChange={e => setUnit(e.target.value)}>
+                                <option value="g">Gramos (g)</option>
+                                <option value="ml">Mililitros (ml)</option>
+                                <option value="u">Unidades (u)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-xs text-gray-400 mb-1">Alerta Stock Mínimo</label>
+                        <input required type="number" className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm"
+                            value={minStock} onChange={e => setMinStock(Number(e.target.value))} />
                     </div>
 
                     <button type="submit" className="w-full bg-white text-black font-bold py-2 rounded hover:bg-gray-200">
@@ -213,18 +223,73 @@ function IngredientsManager({ ingredients, onCreate, onDelete }: any) {
                 </form>
             </Card>
 
-            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {ingredients.map((i: any) => (
-                    <Card key={i.id} className="p-4 flex justify-between items-center group">
-                        <div>
-                            <h4 className="font-bold">{i.name}</h4>
-                            <p className="text-sm text-kame-orange font-mono">{i.currentStock} {i.unit}</p>
-                        </div>
-                        <button onClick={() => onDelete(i.id)} className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-white/5 rounded">
-                            <Trash2 size={18} />
-                        </button>
-                    </Card>
-                ))}
+            <div className="lg:col-span-2">
+                <div className="overflow-x-auto rounded-lg border border-white/10">
+                    <table className="w-full text-left text-sm">
+                        <thead className="bg-white/5 uppercase text-gray-400 font-bold">
+                            <tr>
+                                <th className="p-4">Ingrediente</th>
+                                <th className="p-4">Stock Actual</th>
+                                <th className="p-4">Unidad</th>
+                                <th className="p-4 text-center">Estado</th>
+                                <th className="p-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                            {ingredients.map((i: any) => {
+                                // Logic: Alert if stock < 20% of minStock? Or just if stock < minStock?
+                                // User said: "Si el stock es menor al 20% de la capacidad nominal"
+                                // Assuming 'minStock' acts as the threshold or capacity reference.
+                                // Let's simplify: User likely means if stock is critically low.
+                                // If I don't have "capacity", I'll use minStock as the "Critical Threshold". 
+                                // Actually, typical logic is: Warning if < minStock. Critical if < 20% of minStock?
+                                // Let's assume Capacity isn't tracked yet, so I'll interpret "20% de capacidad nominal" 
+                                // as logic where we might need a "maxStock" field, but for now let's use minStock as the alert trigger.
+                                // Better interpretation: If current < minStock -> Red Alert.
+
+                                const isLowStock = i.currentStock < i.minStock;
+                                const isCritical = i.currentStock < (i.minStock * 0.2); // 20% of threshold
+
+                                return (
+                                    <tr key={i.id} className={`group transition-colors ${isCritical ? 'bg-red-900/20' : 'hover:bg-white/5'}`}>
+                                        <td className="p-4 font-medium">{i.name}</td>
+                                        <td className={`p-4 font-mono font-bold ${isLowStock ? 'text-red-400' : 'text-green-400'}`}>
+                                            {i.currentStock}
+                                        </td>
+                                        <td className="p-4 text-gray-400">{i.unit}</td>
+                                        <td className="p-4 text-center">
+                                            {isCritical ? (
+                                                <span className="inline-flex items-center gap-1 bg-red-500/10 text-red-500 px-2 py-1 rounded text-xs font-bold border border-red-500/20 animate-pulse">
+                                                    CRÍTICO
+                                                </span>
+                                            ) : isLowStock ? (
+                                                <span className="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded text-xs font-bold border border-yellow-500/20">
+                                                    BAJO
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-500 px-2 py-1 rounded text-xs font-bold border border-green-500/20">
+                                                    OK
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <button onClick={() => onDelete(i.id)} className="text-gray-500 hover:text-red-500 transition-colors">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {ingredients.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="p-8 text-center text-gray-500 italic">
+                                        No hay ingredientes registrados en el inventario.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     )

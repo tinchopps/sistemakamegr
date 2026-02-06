@@ -8,7 +8,7 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
     return (
-        <div className="flex h-screen w-screen overflow-hidden bg-kame-dark text-white">
+        <div className="flex h-screen w-screen overflow-hidden bg-[#121212] text-white">
             {/* 1. Sidebar Nav (Left - Fixed Small) */}
             <aside className="w-20 shrink-0 flex flex-col items-center py-6 border-r border-white/10 bg-kame-surface/50 backdrop-blur-md z-20">
                 <div className="mb-10 p-3 bg-kame-orange/10 rounded-xl">
@@ -26,15 +26,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 </div>
             </aside>
 
-            {/* 2. Main Content (Center - Scrollable) */}
-            <main className="flex-1 h-full overflow-y-auto relative scroll-smooth p-6">
+            {/* 2. Main Content (Center - 70%) */}
+            <main className="w-[70%] h-full overflow-y-auto relative scroll-smooth p-6">
                 <div className="max-w-5xl mx-auto h-full">
                     {children}
                 </div>
             </main>
 
-            {/* 3. Cart Sidebar (Right - Fixed 30%) */}
-            <aside className="w-[380px] shrink-0 border-l border-white/10 bg-kame-surface z-20 h-full">
+            {/* 3. Cart Sidebar (Right - 30%) */}
+            <aside className="w-[30%] shrink-0 border-l border-white/10 bg-kame-surface z-20 h-full">
                 {/* Placeholder for Cart Component, will be replaced by real component */}
                 <CartSidebar />
             </aside>

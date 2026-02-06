@@ -1,5 +1,5 @@
 import { useCartStore } from '../../store/useCartStore';
-import { Product } from '../../schemas/product.schema';
+import type { Product } from '../../schemas/product.schema';
 import { Card } from '../ui/Card';
 import { Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
