@@ -31,3 +31,12 @@ dist-ssr
 .env.local
 firebase.json
 firestore.indexes.json
+
+# Test & Reports
+/playwright-report/
+/test-results/
+blob-report/
+
+# Logs & Temporary
+*.txt
+
